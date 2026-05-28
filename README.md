@@ -2,7 +2,7 @@
 
 Portfólio pessoal estático, bilíngue e otimizado para GitHub Pages, com foco em Engenharia de Dados & Analytics.
 
-Site: https://wagner-inacio.github.io/
+Site: https://wagner-inacio.github.io/portfolio-web/
 
 ## Stack
 
