@@ -1,11 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
   ArrowDown,
-  ArrowUpRight,
+  ArrowUp,
   Award,
-  ChartSpline,
-  Database,
-  GitBranch,
+  ChevronDown,
   Github,
   Linkedin,
   Mail,
@@ -20,7 +18,6 @@ const languageNames: Record<Language, string> = {
   en: 'EN',
 };
 
-const aboutIcons = [Database, ChartSpline, GitBranch];
 const sectionIds = ['hero', 'about', 'impact', 'skills', 'experience', 'projects', 'education', 'contact'];
 
 function usePrefersReducedMotion() {
@@ -135,8 +132,9 @@ function CircuitBackground() {
 function App() {
   const [language, setLanguage] = useState<Language>('pt');
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const data = content[language];
-  const currentYear = new Date().getFullYear();
   const [firstName, lastName] = data.hero.name.split(' ');
   useSectionNavigation(sectionIds);
   const navItems = useMemo(
@@ -158,12 +156,28 @@ function App() {
   }, [data.hero.name, data.hero.title, language]);
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 12);
+    const handleScroll = () => {
+      const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const nextProgress = scrollableHeight > 0 ? window.scrollY / scrollableHeight : 0;
+
+      setIsScrolled(window.scrollY > 12);
+      setShowBackToTop(window.scrollY > 180);
+      setScrollProgress(Math.min(Math.max(nextProgress, 0), 1));
+    };
+
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('resize', handleScroll);
 
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, []);
+
+  const handleBackToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
     <div className="site-shell">
@@ -251,22 +265,9 @@ function App() {
               <p key={paragraph}>{paragraph}</p>
             ))}
           </div>
-          <div className="about-highlights">
-            {data.about.highlights.map((item, index) => {
-              const AboutIcon = aboutIcons[index % aboutIcons.length];
-
-              return (
-              <article key={item.label}>
-                <AboutIcon size={32} aria-hidden="true" />
-                <span>{item.label}</span>
-                <strong>{item.value}</strong>
-              </article>
-              );
-            })}
-          </div>
         </section>
 
-        <section className="section-pad section-heading" id="impact">
+        <section className="section-pad section-heading results-section" id="impact">
           <p className="section-kicker">
             <span aria-hidden="true">//</span>
             {data.nav.impact}
@@ -328,6 +329,10 @@ function App() {
                       <li key={bullet}>{bullet}</li>
                     ))}
                   </ul>
+                  <span className="timeline-hint">
+                    {data.experience.detailsHint}
+                    <ChevronDown size={14} aria-hidden="true" />
+                  </span>
                 </div>
               </article>
             ))}
@@ -346,8 +351,22 @@ function App() {
           <div className="project-grid">
             {data.projects.items.map((project) => (
               <article className="project-card" key={project.name}>
-                <div>
-                  <h3>{project.name}</h3>
+                <div className="project-card-header">
+                  <div>
+                    {project.status ? <span className="project-status">{project.status}</span> : null}
+                    <h3>{project.name}</h3>
+                  </div>
+                  <a
+                    className="project-repository-link"
+                    href={project.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={data.projects.repositoryAriaLabel}
+                  >
+                    <Github size={18} aria-hidden="true" />
+                  </a>
+                </div>
+                <div className="project-card-body">
                   <p>{project.description}</p>
                   <strong>{project.impact}</strong>
                 </div>
@@ -356,10 +375,6 @@ function App() {
                     <span key={item}>{item}</span>
                   ))}
                 </div>
-                <a href={project.url} target="_blank" rel="noreferrer">
-                  {data.projects.repositoryLabel}
-                  <ArrowUpRight size={16} aria-hidden="true" />
-                </a>
               </article>
             ))}
           </div>
@@ -388,6 +403,12 @@ function App() {
                     </span>
                   ) : null}
                   {item.note ? <small className="timeline-details">{item.note}</small> : null}
+                  {item.note ? (
+                    <span className="timeline-hint">
+                      {data.experience.detailsHint}
+                      <ChevronDown size={14} aria-hidden="true" />
+                    </span>
+                  ) : null}
                 </div>
               </article>
             ))}
@@ -419,14 +440,25 @@ function App() {
           </div>
         </section>
       </main>
+      <button
+        className={showBackToTop ? 'floating-back-to-top is-visible' : 'floating-back-to-top'}
+        type="button"
+        aria-label={language === 'pt' ? 'Voltar ao topo' : 'Back to top'}
+        style={{ '--scroll-progress': `${scrollProgress * 360}deg` } as React.CSSProperties}
+        onClick={handleBackToTop}
+      >
+        <ArrowUp size={18} aria-hidden="true" />
+      </button>
+
       <footer className="site-footer">
         <div className="footer-brand">
           <span>&lt;WO/&gt;</span>
         </div>
-        <p className="footer-note">© {currentYear} Wagner Inácio de Oliveira</p>
-        <a className="back-to-top" href="#top" aria-label="Voltar ao topo">
-          <ArrowDown size={18} aria-hidden="true" />
-        </a>
+        <p className="footer-note">
+          {language === 'pt'
+            ? '© 2026 Wagner Inácio de Oliveira. Todos os direitos reservados.'
+            : '© 2026 Wagner Inácio de Oliveira. All rights reserved.'}
+        </p>
       </footer>
     </div>
   );

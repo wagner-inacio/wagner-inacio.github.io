@@ -1,7 +1,10 @@
 import { useEffect, useRef } from 'react';
 
 const NAVIGATION_LOCK_MS = 850;
-const MIN_WHEEL_DELTA = 8;
+const MIN_WHEEL_DELTA = 18;
+const FREE_SCROLL_SECTION_ID = 'projects';
+const PROJECTS_EDGE_THRESHOLD = 72;
+const HEADER_OFFSET = 88;
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
@@ -12,47 +15,15 @@ function isInteractiveElement(target: EventTarget | null) {
     return false;
   }
 
-  return Boolean(
-    target.closest(
-      'a, button, input, textarea, select, summary, [contenteditable="true"], [role="button"], [role="link"], [data-section-nav-ignore]',
-    ),
-  );
-}
-
-function canScrollInDirection(element: Element, deltaY: number) {
-  let current: Element | null = element;
-
-  while (current && current !== document.documentElement && current !== document.body) {
-    const style = window.getComputedStyle(current);
-    const canOverflow = /(auto|scroll)/.test(style.overflowY);
-    const hasScrollableContent = current.scrollHeight > current.clientHeight + 1;
-
-    if (canOverflow && hasScrollableContent) {
-      const maxScrollTop = current.scrollHeight - current.clientHeight;
-      const canScrollDown = deltaY > 0 && current.scrollTop < maxScrollTop - 1;
-      const canScrollUp = deltaY < 0 && current.scrollTop > 1;
-
-      if (canScrollDown || canScrollUp) {
-        return true;
-      }
-    }
-
-    current = current.parentElement;
-  }
-
-  return false;
+  return Boolean(target.closest('a, button, input, textarea, select, summary, [contenteditable="true"], [role="button"], [role="link"]'));
 }
 
 function getSections(sectionIds: readonly string[]) {
   return sectionIds.map((id) => document.getElementById(id)).filter((section): section is HTMLElement => Boolean(section));
 }
 
-function getNearestSectionIndex(sections: HTMLElement[]) {
-  if (sections.length === 0) {
-    return 0;
-  }
-
-  const viewportAnchor = window.innerHeight * 0.18;
+function getCurrentSectionIndex(sections: HTMLElement[]) {
+  const viewportAnchor = window.innerHeight * 0.38;
 
   return sections.reduce((nearestIndex, section, index) => {
     const currentDistance = Math.abs(section.getBoundingClientRect().top - viewportAnchor);
@@ -62,8 +33,31 @@ function getNearestSectionIndex(sections: HTMLElement[]) {
   }, 0);
 }
 
+function getSectionIndexById(sections: HTMLElement[], id: string) {
+  return sections.findIndex((section) => section.id === id);
+}
+
+function isViewportInsideSection(section: HTMLElement) {
+  const rect = section.getBoundingClientRect();
+
+  return rect.top <= HEADER_OFFSET + PROJECTS_EDGE_THRESHOLD && rect.bottom >= window.innerHeight - PROJECTS_EDGE_THRESHOLD;
+}
+
+function canExitFreeScrollSection(section: HTMLElement, direction: 1 | -1) {
+  const rect = section.getBoundingClientRect();
+
+  if (direction > 0) {
+    return rect.bottom <= window.innerHeight + PROJECTS_EDGE_THRESHOLD;
+  }
+
+  return rect.top >= HEADER_OFFSET - PROJECTS_EDGE_THRESHOLD;
+}
+
+function isDesktopNavigationEnabled() {
+  return window.matchMedia('(hover: hover) and (pointer: fine)').matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
 export function useSectionNavigation(sectionIds: readonly string[]) {
-  const activeIndexRef = useRef(0);
   const isLockedRef = useRef(false);
   const lockTimeoutRef = useRef<number | null>(null);
 
@@ -75,62 +69,56 @@ export function useSectionNavigation(sectionIds: readonly string[]) {
       }
     };
 
-    const sections = getSections(sectionIds);
-
-    const navigateTo = (index: number) => {
-      const currentSections = getSections(sectionIds);
-
-      if (currentSections.length === 0 || isLockedRef.current) {
-        return false;
-      }
-
-      const nextIndex = clamp(index, 0, currentSections.length - 1);
-      const targetSection = currentSections[nextIndex];
-
-      if (!targetSection) {
-        return false;
-      }
-
-      isLockedRef.current = true;
-      activeIndexRef.current = nextIndex;
-      targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
+    const unlockAfterDelay = () => {
       clearLockTimeout();
       lockTimeoutRef.current = window.setTimeout(() => {
         isLockedRef.current = false;
         lockTimeoutRef.current = null;
       }, NAVIGATION_LOCK_MS);
+    };
+
+    const navigateBy = (direction: 1 | -1) => {
+      if (!isDesktopNavigationEnabled() || isLockedRef.current) {
+        return false;
+      }
+
+      const sections = getSections(sectionIds);
+
+      if (sections.length === 0) {
+        return false;
+      }
+
+      const freeScrollIndex = getSectionIndexById(sections, FREE_SCROLL_SECTION_ID);
+      const freeScrollSection = freeScrollIndex >= 0 ? sections[freeScrollIndex] : null;
+      const isInsideFreeScrollSection = freeScrollSection ? isViewportInsideSection(freeScrollSection) : false;
+      const currentIndex = isInsideFreeScrollSection ? freeScrollIndex : getCurrentSectionIndex(sections);
+      const currentSection = sections[currentIndex];
+
+      if (currentSection?.id === FREE_SCROLL_SECTION_ID) {
+        if (!canExitFreeScrollSection(currentSection, direction)) {
+          return false;
+        }
+      }
+
+      const nextIndex = clamp(currentIndex + direction, 0, sections.length - 1);
+      const targetSection = sections[nextIndex];
+
+      if (!targetSection || targetSection === currentSection) {
+        return false;
+      }
+
+      isLockedRef.current = true;
+      window.scrollTo({
+        top: targetSection.offsetTop - HEADER_OFFSET,
+        behavior: 'smooth',
+      });
+      unlockAfterDelay();
 
       return true;
     };
 
-    const navigateBy = (direction: 1 | -1) => {
-      const currentSections = getSections(sectionIds);
-
-      if (currentSections.length === 0) {
-        return false;
-      }
-
-      const currentIndex = getNearestSectionIndex(currentSections);
-      const nextIndex = currentIndex + direction;
-
-      if (nextIndex < 0 || nextIndex >= currentSections.length) {
-        return false;
-      }
-
-      return navigateTo(nextIndex);
-    };
-
     const handleWheel = (event: WheelEvent) => {
-      const isTouchOrCoarsePointer = window.matchMedia('(hover: none), (pointer: coarse)').matches;
-
-      if (
-        isTouchOrCoarsePointer ||
-        event.defaultPrevented ||
-        Math.abs(event.deltaY) < MIN_WHEEL_DELTA ||
-        isInteractiveElement(event.target) ||
-        (event.target instanceof Element && canScrollInDirection(event.target, event.deltaY))
-      ) {
+      if (event.defaultPrevented || Math.abs(event.deltaY) < MIN_WHEEL_DELTA || isInteractiveElement(event.target)) {
         return;
       }
 
@@ -146,7 +134,6 @@ export function useSectionNavigation(sectionIds: readonly string[]) {
         return;
       }
 
-      const currentSections = getSections(sectionIds);
       let didNavigate = false;
 
       if (event.key === 'ArrowDown' || event.key === 'PageDown') {
@@ -157,45 +144,16 @@ export function useSectionNavigation(sectionIds: readonly string[]) {
         didNavigate = navigateBy(-1);
       }
 
-      if (event.key === 'Home') {
-        didNavigate = navigateTo(0);
-      }
-
-      if (event.key === 'End') {
-        didNavigate = navigateTo(currentSections.length - 1);
-      }
-
       if (didNavigate) {
         event.preventDefault();
       }
     };
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visibleEntry = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-
-        if (!visibleEntry) {
-          return;
-        }
-
-        const nextIndex = sectionIds.indexOf(visibleEntry.target.id);
-
-        if (nextIndex >= 0) {
-          activeIndexRef.current = nextIndex;
-        }
-      },
-      { rootMargin: '-18% 0px -45% 0px', threshold: [0.2, 0.4, 0.6] },
-    );
-
-    sections.forEach((section) => observer.observe(section));
     window.addEventListener('wheel', handleWheel, { passive: false });
     window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       clearLockTimeout();
-      observer.disconnect();
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('keydown', handleKeyDown);
     };
