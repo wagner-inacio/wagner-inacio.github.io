@@ -170,7 +170,7 @@ Texto atual:
 
 Links:
 - Email: `mailto:wagner.inacio.dev@gmail.com`
-- GitHub: `https://github.com/wagnerinacio16`
+- GitHub: `https://github.com/wagner-inacio`
 - LinkedIn: `https://www.linkedin.com/in/wagner-inacio-de-oliveira/`
 
 ## Padrões Visuais

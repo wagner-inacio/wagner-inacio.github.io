@@ -2,6 +2,8 @@
 
 Portfólio pessoal estático, bilíngue e otimizado para GitHub Pages, com foco em Engenharia de Dados & Analytics.
 
+Site: https://wagner-inacio.github.io/
+
 ## Stack
 
 - React
@@ -48,6 +50,6 @@ O conteúdo bilíngue fica centralizado em `src/content.ts`, incluindo:
 
 ## Contatos
 
-- GitHub: https://github.com/wagnerinacio16
+- GitHub: https://github.com/wagner-inacio
 - LinkedIn: https://www.linkedin.com/in/wagner-inacio-de-oliveira/
 - Email: wagner.inacio.dev@gmail.com

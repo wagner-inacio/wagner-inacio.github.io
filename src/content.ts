@@ -80,7 +80,7 @@ export type Content = {
 
 const links = {
   email: 'mailto:wagner.inacio.dev@gmail.com',
-  github: 'https://github.com/wagnerinacio16',
+  github: 'https://github.com/wagner-inacio',
   linkedin: 'https://www.linkedin.com/in/wagner-inacio-de-oliveira/',
 };
 
@@ -232,7 +232,7 @@ export const content: Record<Language, Content> = {
           impact: 'Integra cloud storage, Spark e banco relacional em uma arquitetura de dados aplicada.',
           status: 'Projeto aplicado',
           stack: ['AWS S3', 'RDS', 'PySpark', 'Spark JDBC', 'boto3', 'Parquet'],
-          url: 'https://github.com/wagnerinacio16/s3-spark-rds-etl-pipeline',
+          url: 'https://github.com/wagner-inacio/s3-spark-rds-etl-pipeline',
         },
         {
           name: 'Medallion Pipeline para Indicadores Econômicos',
@@ -241,7 +241,7 @@ export const content: Record<Language, Content> = {
           impact: 'Demonstra organização Bronze/Silver/Gold, validação de dados e catálogo técnico.',
           status: 'Case técnico',
           stack: ['Python', 'Pandas', 'Pandera', 'Requests', 'YAML', 'Loguru'],
-          url: 'https://github.com/wagnerinacio16/pipeline-indicadores-economicos',
+          url: 'https://github.com/wagner-inacio/pipeline-indicadores-economicos',
         },
         {
           name: 'Spotify Analytics Engineering com DBT',
@@ -250,7 +250,7 @@ export const content: Record<Language, Content> = {
           impact: 'Explora modelagem analítica, organização de camadas e boas práticas com DBT.',
           status: 'Analytics Engineering',
           stack: ['Python', 'dbt', 'Analytics Engineering', 'Spotify API', 'Data Warehouse'],
-          url: 'https://github.com/wagnerinacio16/dbt-spotify-analytics',
+          url: 'https://github.com/wagner-inacio/dbt-spotify-analytics',
         },
         {
           name: 'Weather Data Pipeline na AWS',
@@ -259,7 +259,7 @@ export const content: Record<Language, Content> = {
           impact: 'Trabalha arquitetura cloud, camadas de dados e transformação governada.',
           status: 'Cloud Data Engineering',
           stack: ['AWS Glue', 'Silver Layer', 'Python', 'ETL', 'Data Lake'],
-          url: 'https://github.com/wagnerinacio16/weather-data-glue-transformations',
+          url: 'https://github.com/wagner-inacio/weather-data-glue-transformations',
         },
         {
           name: 'Event-Driven Data Pipeline com Kafka',
@@ -268,7 +268,7 @@ export const content: Record<Language, Content> = {
           impact: 'Explora mensageria, streaming e processamento contínuo de dados.',
           status: 'Em evolução',
           stack: ['Apache Kafka', 'Python', 'Streaming', 'Event-Driven Architecture'],
-          url: 'https://github.com/wagnerinacio16/apache-kafka',
+          url: 'https://github.com/wagner-inacio/apache-kafka',
         },
       ],
     },
@@ -450,7 +450,7 @@ export const content: Record<Language, Content> = {
           impact: 'Integrates cloud storage, Spark and relational databases in an applied data architecture.',
           status: 'Applied project',
           stack: ['AWS S3', 'RDS', 'PySpark', 'Spark JDBC', 'boto3', 'Parquet'],
-          url: 'https://github.com/wagnerinacio16/s3-spark-rds-etl-pipeline',
+          url: 'https://github.com/wagner-inacio/s3-spark-rds-etl-pipeline',
         },
         {
           name: 'Medallion Pipeline for Economic Indicators',
@@ -459,7 +459,7 @@ export const content: Record<Language, Content> = {
           impact: 'Demonstrates Bronze/Silver/Gold organization, data validation and technical cataloging.',
           status: 'Technical case',
           stack: ['Python', 'Pandas', 'Pandera', 'Requests', 'YAML', 'Loguru'],
-          url: 'https://github.com/wagnerinacio16/pipeline-indicadores-economicos',
+          url: 'https://github.com/wagner-inacio/pipeline-indicadores-economicos',
         },
         {
           name: 'Spotify Analytics Engineering with DBT',
@@ -468,7 +468,7 @@ export const content: Record<Language, Content> = {
           impact: 'Explores analytical modeling, layered organization and DBT best practices.',
           status: 'Analytics Engineering',
           stack: ['Python', 'dbt', 'Analytics Engineering', 'Spotify API', 'Data Warehouse'],
-          url: 'https://github.com/wagnerinacio16/dbt-spotify-analytics',
+          url: 'https://github.com/wagner-inacio/dbt-spotify-analytics',
         },
         {
           name: 'Weather Data Pipeline on AWS',
@@ -477,7 +477,7 @@ export const content: Record<Language, Content> = {
           impact: 'Works with cloud architecture, data layers and governed transformations.',
           status: 'Cloud Data Engineering',
           stack: ['AWS Glue', 'Silver Layer', 'Python', 'ETL', 'Data Lake'],
-          url: 'https://github.com/wagnerinacio16/weather-data-glue-transformations',
+          url: 'https://github.com/wagner-inacio/weather-data-glue-transformations',
         },
         {
           name: 'Event-Driven Data Pipeline with Kafka',
@@ -486,7 +486,7 @@ export const content: Record<Language, Content> = {
           impact: 'Explores messaging, streaming and continuous data processing.',
           status: 'In progress',
           stack: ['Apache Kafka', 'Python', 'Streaming', 'Event-Driven Architecture'],
-          url: 'https://github.com/wagnerinacio16/apache-kafka',
+          url: 'https://github.com/wagner-inacio/apache-kafka',
         },
       ],
     },
